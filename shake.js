@@ -87,7 +87,8 @@
             currentTime = new Date();
             timeDifference = currentTime.getTime() - this.lastTime.getTime();
 
-            if (timeDifference > 1000) {
+            // TODO - make configurable
+            if (timeDifference > 500) {
                 window.dispatchEvent(this.event);
                 this.lastTime = new Date();
             }
