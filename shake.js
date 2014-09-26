@@ -6,6 +6,8 @@
  * Copyright (c) 2010-2012 Alex Gibson
  * Released under MIT license
  *
+ * Forked by @dmbwien
+ * Adapated by @dmb-dz
  */
 
 ;(function (window, document) {
