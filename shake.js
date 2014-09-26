@@ -74,7 +74,11 @@
             timeDifference,
             deltaX = 0,
             deltaY = 0,
-            deltaZ = 0;
+            deltaZ = 0,
+            deltaXAbs = 0,
+            deltaYAbs = 0,
+            deltaZAbs = 0
+        ;
 
         if ((this.lastX === null) && (this.lastY === null) && (this.lastZ === null)) {
             this.lastX = current.x;
@@ -83,11 +87,17 @@
             return;
         }
 
-        deltaX = Math.abs(this.lastX - current.x);
-        deltaY = Math.abs(this.lastY - current.y);
-        deltaZ = Math.abs(this.lastZ - current.z);
+        deltaX = this.lastX - current.x;
+        deltaY = this.lastY - current.y;
+        deltaZ = this.lastZ - current.z;
+        deltaXAbs = Math.abs(deltaX);
+        deltaYAbs = Math.abs(deltaY);
+        deltaZAbs = Math.abs(deltaZ);
 
-        if (((deltaX > this.threshold) && (deltaY > this.threshold)) || ((deltaX > this.threshold) && (deltaZ > this.threshold)) || ((deltaY > this.threshold) && (deltaZ > this.threshold))) {
+        if (((deltaXAbs > this.threshold) && (deltaYAbs > this.threshold)) ||
+            ((deltaXAbs > this.threshold) && (deltaZAbs > this.threshold)) ||
+            ((deltaYAbs > this.threshold) && (deltaZAbs > this.threshold)))
+        {
             //calculate time in milliseconds since last shake registered
             currentTime = new Date();
             timeDifference = currentTime.getTime() - this.lastTime.getTime();
@@ -95,6 +105,10 @@
             // TODO - make configurable
             if (timeDifference > 500) {
                 var event = this.getEventObject();
+                event.x = deltaX;
+                event.y = deltaY;
+                event.z = deltaZ;
+
                 window.dispatchEvent(event);
                 this.lastTime = new Date();
             }
