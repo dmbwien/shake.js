@@ -17,6 +17,9 @@
         //feature detect
         this.hasDeviceMotion = 'ondevicemotion' in window;
 
+        // store the orientation as we need to change X/Y values
+        this.orientation = window.orientation || 0;
+
         //default velocity threshold for shake to register
         // TODO - make configurable
         this.threshold = 10;
@@ -108,8 +111,13 @@
             // TODO - make configurable
             if (timeDifference > 500) {
                 var event = this.getEventObject();
-                event.x = deltaX;
-                event.y = deltaY;
+                if (Math.abs(orientation) != 90) {
+                    event.x = deltaX;
+                    event.y = deltaY;
+                } else {
+                    event.x = deltaY;
+                    event.y = deltaX;
+                }
                 event.z = deltaZ;
 
                 window.dispatchEvent(event);
