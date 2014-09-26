@@ -25,20 +25,25 @@
         this.lastX = null;
         this.lastY = null;
         this.lastZ = null;
+    }
 
-        //create custom event
+    //create custom event
+    Shake.prototype.getEventObject = function() {
+        var event;
         if (typeof document.CustomEvent === "function") {
-            this.event = new document.CustomEvent('shake', {
+            event = new document.CustomEvent('shake', {
                 bubbles: true,
                 cancelable: true
             });
+            return event;
         } else if (typeof document.createEvent === "function") {
-            this.event = document.createEvent('Event');
-            this.event.initEvent('shake', true, true);
+            event = document.createEvent('Event');
+            event.initEvent('shake', true, true);
+            return event;
         } else {
           return false;
         }
-    }
+    };
 
     //reset timer values
     Shake.prototype.reset = function () {
@@ -89,7 +94,8 @@
 
             // TODO - make configurable
             if (timeDifference > 500) {
-                window.dispatchEvent(this.event);
+                var event = this.getEventObject();
+                window.dispatchEvent(event);
                 this.lastTime = new Date();
             }
         }
