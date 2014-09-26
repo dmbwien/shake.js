@@ -69,7 +69,7 @@
     //calculates if shake did occur
     Shake.prototype.devicemotion = function (e) {
 
-        var current = e.accelerationIncludingGravity,
+        var current = e.acceleration || e.accelerationIncludingGravity,
             currentTime,
             timeDifference,
             deltaX = 0,
