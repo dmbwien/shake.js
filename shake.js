@@ -16,13 +16,16 @@
 
         //feature detect
         this.hasDeviceMotion = 'ondevicemotion' in window;
+        this.hasDeviceOrientation = 'orientation' in window;
 
         // store the orientation as we need to change X/Y values
         this.orientation = window.orientation || 0;
 
         //default velocity threshold for shake to register
         // TODO - make configurable
-        this.threshold = 10;
+        this.motionThreshold = 10;
+
+        this.orientationDirection = -1;
 
         //use date to prevent multiple shakes firing
         this.lastTime = new Date();
@@ -62,21 +65,50 @@
     //start listening for devicemotion
     Shake.prototype.start = function () {
         this.reset();
-        if (this.hasDeviceMotion) { window.addEventListener('devicemotion', this, false); }
+        if (this.hasDeviceMotion) {
+            window.addEventListener('devicemotion', this, false);
+        }
+        if (this.hasDeviceOrientation) {
+            window.addEventListener('orientationchange', this, false);
+        }
     };
 
     //stop listening for devicemotion
     Shake.prototype.stop = function () {
-
-        if (this.hasDeviceMotion) { window.removeEventListener('devicemotion', this, false); }
+        if (this.hasDeviceMotion) {
+            window.removeEventListener('devicemotion', this, false);
+        }
+        if (this.hasDeviceOrientation) {
+            window.removeEventListener('orientationchange', this, false);
+        }
         this.reset();
     };
 
     //calculates if shake did occur
     Shake.prototype.devicemotion = function (e) {
+        var current = e.acceleration || e.accelerationIncludingGravity;
+        this.checkShake(this.motionThreshold, current.x, current.y, current.z);
+    };
 
-        var current = e.acceleration || e.accelerationIncludingGravity,
-            currentTime,
+    Shake.prototype.orientationchange = function(e) {
+        this.orientation = window.orientation;
+
+        this.orientationDirection *= -1;
+        if (Math.abs(orientation) != 90) {
+            x = 15 * this.orientationDirection;
+            y = 0;
+        } else {
+            x = 0;
+            y = 15 * this.orientationDirection;
+        }
+
+        this.checkShake(-1, x, y, 0);
+    };
+
+    //calculates if shake did occur
+    Shake.prototype.checkShake = function(threshold, x, y, z) {
+
+        var currentTime,
             timeDifference,
             deltaX = 0,
             deltaY = 0,
@@ -87,22 +119,22 @@
         ;
 
         if ((this.lastX === null) && (this.lastY === null) && (this.lastZ === null)) {
-            this.lastX = current.x;
-            this.lastY = current.y;
-            this.lastZ = current.z;
+            this.lastX = x;
+            this.lastY = y;
+            this.lastZ = z;
             return;
         }
 
-        deltaX = this.lastX - current.x;
-        deltaY = this.lastY - current.y;
-        deltaZ = this.lastZ - current.z;
+        deltaX = this.lastX - x;
+        deltaY = this.lastY - y;
+        deltaZ = this.lastZ - z;
         deltaXAbs = Math.abs(deltaX);
         deltaYAbs = Math.abs(deltaY);
         deltaZAbs = Math.abs(deltaZ);
 
-        if (((deltaXAbs > this.threshold) && (deltaYAbs > this.threshold)) ||
-            ((deltaXAbs > this.threshold) && (deltaZAbs > this.threshold)) ||
-            ((deltaYAbs > this.threshold) && (deltaZAbs > this.threshold)))
+        if (((deltaXAbs > threshold) && (deltaYAbs > threshold)) ||
+            ((deltaXAbs > threshold) && (deltaZAbs > threshold)) ||
+            ((deltaYAbs > threshold) && (deltaZAbs > threshold)))
         {
             //calculate time in milliseconds since last shake registered
             currentTime = new Date();
@@ -110,6 +142,8 @@
 
             // TODO - make configurable
             if (timeDifference > 500) {
+                this.lastTime = new Date();
+
                 var event = this.getEventObject();
                 if (Math.abs(orientation) != 90) {
                     event.x = deltaX;
@@ -121,13 +155,12 @@
                 event.z = deltaZ;
 
                 window.dispatchEvent(event);
-                this.lastTime = new Date();
             }
         }
 
-        this.lastX = current.x;
-        this.lastY = current.y;
-        this.lastZ = current.z;
+        this.lastX = x;
+        this.lastY = y;
+        this.lastZ = z;
 
     };
 
