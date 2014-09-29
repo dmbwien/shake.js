@@ -28,7 +28,7 @@
         this.orientationDirection = -1;
 
         //use date to prevent multiple shakes firing
-        this.lastTime = new Date();
+        this.lastTime = +new Date;
 
         //accelerometer values
         this.lastX = null;
@@ -56,7 +56,7 @@
 
     //reset timer values
     Shake.prototype.reset = function () {
-        this.lastTime = new Date();
+        this.lastTime = +new Date;
         this.lastX = null;
         this.lastY = null;
         this.lastZ = null;
@@ -137,12 +137,12 @@
             ((deltaYAbs > threshold) && (deltaZAbs > threshold)))
         {
             //calculate time in milliseconds since last shake registered
-            currentTime = new Date();
-            timeDifference = currentTime.getTime() - this.lastTime.getTime();
+            currentTime = +new Date;
+            timeDifference = currentTime - this.lastTime;
 
             // TODO - make configurable
             if (timeDifference > 500) {
-                this.lastTime = new Date();
+                this.lastTime = +new Date;
 
                 var event = this.getEventObject();
                 if (Math.abs(orientation) != 90) {
