@@ -23,7 +23,7 @@
 
         //default velocity threshold for shake to register
         // TODO - make configurable
-        this.motionThreshold = 10;
+        this.motionThreshold = 4;
 
         this.orientationDirection = -1;
 
